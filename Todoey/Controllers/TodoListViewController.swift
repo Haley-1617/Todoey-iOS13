@@ -8,6 +8,7 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
 class TodoListViewController: SwipeTableViewController {
     
@@ -21,10 +22,27 @@ class TodoListViewController: SwipeTableViewController {
         }
     }
     
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
+        
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let colorHex = selectedCategory?.color {
+            guard let navBar = navigationController?.navigationBar else {fatalError("Navigation controller does not exist")}
+            title = selectedCategory!.name
+            
+            if let navBarColor = UIColor(hexString:colorHex) {
+                navBar.backgroundColor = navBarColor
+                searchBar.barTintColor = navBarColor
+                navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+                navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)]
+            }
+        }
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -36,6 +54,11 @@ class TodoListViewController: SwipeTableViewController {
         
         if let item = todoItems?[indexPath.row] {
             cell.textLabel?.text = item.title
+            if let color = UIColor(hexString: selectedCategory!.color)?.darken(byPercentage: CGFloat(indexPath.row) / CGFloat(todoItems!.count)) {
+                cell.backgroundColor = color
+                cell.textLabel?.textColor = ContrastColorOf(color, returnFlat: true)
+            }
+            
             cell.accessoryType = (item.done) ? .checkmark : .none
         } else {
             cell.textLabel?.text = "No Items Added"
@@ -66,7 +89,6 @@ class TodoListViewController: SwipeTableViewController {
         let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
         
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-            print(textField.text ?? "")
             
             if let currentCategory = self.selectedCategory {
                 do {
