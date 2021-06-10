@@ -23,8 +23,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         } catch {
             print("Error initialising new realm, \(error)")
         }
-        print(Realm.Configuration.defaultConfiguration.fileURL)
-        print("current date: \(Date())")
+//        print(Realm.Configuration.defaultConfiguration.fileURL)
         
         
         return true
